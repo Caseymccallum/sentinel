@@ -13,7 +13,7 @@
  *
  * Usage:
  *   node scripts/generate-icons.mjs           # write the icons
- *   node scripts/generate-icons.mjs --check   # validate the PNGs already on disk
+ *   node scripts/generate-icons.mjs --check   # validate the committed PNGs, incl. against this geometry
  */
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -94,8 +94,10 @@ const PAD = 0.055;
 const HALF_WIDTH = 0.4;
 const SHOULDER = 0.6;
 const CORNER = 0.16;
-const RIM_SCALE = 0.84; // the inner shield is this much smaller, which is what draws the outline
 const V_CENTER = 0.51;
+
+/** Below this the mark is drawn heavier, because a toolbar shows 16 or 32 where fine detail dies. */
+const SMALL_ICON_MAX = 48;
 
 function halfWidthAt(v) {
   if (v < 0) return 0;
@@ -116,12 +118,39 @@ function insideShield(u, v) {
 }
 
 /** The check mark: two capsules sharing a vertex, so the joint cannot show a seam. */
-const CHECK_THICKNESS = 0.088;
 const CHECK_STROKE = [
   [0.315, 0.5],
   [0.44, 0.638],
   [0.7, 0.335],
 ];
+
+/**
+ * How heavily the mark is drawn at one size.
+ *
+ * The geometry is the same at every size; the *weights* are not. A rim and a check that read
+ * correctly at 128 px rasterise to roughly 1.0 px and 1.4 px at 16 px, where 8x supersampling turns
+ * them into translucent grey and the whole mark merges into one blob in a browser toolbar. So the
+ * small sizes are drawn heavier, and the check is pulled inwards because a proportionally thick
+ * stroke at that size would touch the rim. Thicknesses are fractions of the mark's own box, which
+ * is why 48 px and above render exactly as they always did.
+ */
+function weightsFor(size) {
+  const small = size < SMALL_ICON_MAX;
+  const rimFraction = small ? 0.098 : 0.064;
+  const thickness = small ? 0.15 : 0.088;
+  const checkScale = small ? 0.84 : 1;
+
+  return {
+    // The rim is the band between the shield and a copy of that shield scaled about
+    // (0.5, V_CENTER), so its horizontal thickness is HALF_WIDTH * (1 - rimScale) of the unit box.
+    rimScale: 1 - rimFraction / HALF_WIDTH,
+    thickness,
+    stroke: CHECK_STROKE.map(([u, v]) => [
+      0.5 + (u - 0.5) * checkScale,
+      V_CENTER + (v - V_CENTER) * checkScale,
+    ]),
+  };
+}
 
 function distanceToSegment(px, py, [ax, ay], [bx, by]) {
   const dx = bx - ax;
@@ -131,12 +160,13 @@ function distanceToSegment(px, py, [ax, ay], [bx, by]) {
   return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
 }
 
-function insideCheck(u, v) {
+function insideCheck(u, v, weights) {
   let distance = Number.POSITIVE_INFINITY;
-  for (let index = 1; index < CHECK_STROKE.length; index += 1) {
-    distance = Math.min(distance, distanceToSegment(u, v, CHECK_STROKE[index - 1], CHECK_STROKE[index]));
+  const stroke = weights.stroke;
+  for (let index = 1; index < stroke.length; index += 1) {
+    distance = Math.min(distance, distanceToSegment(u, v, stroke[index - 1], stroke[index]));
   }
-  return distance <= CHECK_THICKNESS / 2;
+  return distance <= weights.thickness / 2;
 }
 
 function mix(top, bottom, t) {
@@ -145,22 +175,23 @@ function mix(top, bottom, t) {
 }
 
 /** Colour at one point, or null where the mark is transparent. Layers composite back to front. */
-function sampleIcon(x, y) {
+function sampleIcon(x, y, weights) {
   const u = (x - PAD) / (1 - 2 * PAD);
   const v = (y - PAD) / (1 - 2 * PAD);
   if (!insideShield(u, v)) return null;
 
-  const innerU = (u - 0.5) / RIM_SCALE + 0.5;
-  const innerV = (v - V_CENTER) / RIM_SCALE + V_CENTER;
+  const innerU = (u - 0.5) / weights.rimScale + 0.5;
+  const innerV = (v - V_CENTER) / weights.rimScale + V_CENTER;
   if (!insideShield(innerU, innerV)) return RIM;
-  if (insideCheck(u, v)) return CHECK;
+  if (insideCheck(u, v, weights)) return CHECK;
 
   return mix(FILL_TOP, FILL_BOTTOM, v);
 }
 
 /** Rasterises one icon size with supersampling, so the curves survive a 16px toolbar. */
 function render(size) {
-  const perAxis = size >= 48 ? 4 : 8;
+  const weights = weightsFor(size);
+  const perAxis = size >= SMALL_ICON_MAX ? 4 : 8;
   const total = perAxis * perAxis;
   const rgba = Buffer.alloc(size * size * 4);
 
@@ -173,7 +204,11 @@ function render(size) {
 
       for (let sy = 0; sy < perAxis; sy += 1) {
         for (let sx = 0; sx < perAxis; sx += 1) {
-          const colour = sampleIcon((x + (sx + 0.5) / perAxis) / size, (y + (sy + 0.5) / perAxis) / size);
+          const colour = sampleIcon(
+            (x + (sx + 0.5) / perAxis) / size,
+            (y + (sy + 0.5) / perAxis) / size,
+            weights,
+          );
           if (colour === null) continue;
           red += colour[0];
           green += colour[1];
@@ -244,10 +279,12 @@ function checkIcon(size) {
   }
 
   const alphaAt = (x, y) => decoded.pixels[y * (stride + 1) + 1 + x * 4 + 3];
+  const rgba = Buffer.alloc(stride * size);
   let opaque = 0;
   for (let y = 0; y < size; y += 1) {
     const rowStart = y * (stride + 1);
     if (decoded.pixels[rowStart] !== 0) throw new Error(`row ${y} uses an unexpected filter type`);
+    decoded.pixels.copy(rgba, y * stride, rowStart + 1, rowStart + 1 + stride);
     for (let x = 0; x < size; x += 1) if (alphaAt(x, y) === 255) opaque += 1;
   }
 
@@ -259,6 +296,14 @@ function checkIcon(size) {
   if (alphaAt(size >> 1, size >> 1) !== 255) throw new Error('is not solid at its centre');
   if (coverage < 0.2 || coverage > 0.8) {
     throw new Error(`is ${(coverage * 100).toFixed(1)}% opaque, which is not a shield shape`);
+  }
+
+  // `--check` is a gate, so it has to mean what `docs/DEVELOPMENT.md` says it means: the committed
+  // PNG is what this geometry renders. Compared as pixels rather than encoded bytes, because
+  // deflate output is not guaranteed to be identical across the zlib versions different Node
+  // releases ship, and a gate that fails on a Node upgrade is a gate nobody trusts.
+  if (!rgba.equals(render(size))) {
+    throw new Error('is not what the current geometry renders - run `npm run icons` and commit the result');
   }
 
   return { coverage, bytes: readFileSync(join(ICON_DIR, `${size}.png`)).length };
@@ -282,7 +327,7 @@ function main() {
       process.exitCode = 1;
       return;
     }
-    console.log('\nOK  Every icon is a valid, non-blank 8-bit RGBA PNG.');
+    console.log('\nOK  Every committed icon is a valid 8-bit RGBA PNG, and matches this geometry.');
     return;
   }
 
