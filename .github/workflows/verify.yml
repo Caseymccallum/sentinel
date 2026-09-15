@@ -35,9 +35,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 22 is the floor `package.json` engines declares; 24 is where the project is developed.
-        # Anything the matrix does not list is not vouched for.
-        node: ['22', '24']
+        # 22 is the floor `package.json` engines declares, 24 is the current LTS line, 26 is
+        # the version the project is developed on - so a green run here means the same thing on
+        # a contributor's machine and on a release machine. Anything not listed is not vouched
+        # for, which is a statement, not an oversight.
+        node: ['22', '24', '26']
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -60,9 +62,11 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version: '24'
           cache: npm
       - run: npm ci
+      # Node 24 here rather than 22: this is the one job where a runtime quirk would look like a
+      # Sentinel bug, so it runs on the LTS line Playwright is most exercised against.
       # `channel: 'chromium'` in tests/e2e/extension.ts needs the full Chromium build: only it
       # can load an extension, and `chrome-headless-shell` is what `headless: true` would get.
       - run: npx playwright install --with-deps chromium
