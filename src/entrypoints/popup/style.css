@@ -1,0 +1,587 @@
+/*
+ * The popup's stylesheet.
+ *
+ * Deliberately self-contained: no web fonts, no remote images, no CSS from anywhere but this file
+ * - a stylesheet that fetched something would break Sentinel's central promise, and
+ * `check-local-only` scans this file for exactly that.
+ *
+ * Colour is never the only signal. Every tone also changes text and a glyph, so the panel still
+ * reads correctly in high-contrast mode, in dark mode, and for a user who cannot distinguish the
+ * three tones at all.
+ */
+
+:root {
+  color-scheme: light dark;
+  --ink: #14181f;
+  --ink-muted: #5a6472;
+  --surface: #ffffff;
+  --surface-sunken: #f4f6f9;
+  --line: #dfe4ea;
+  --good: #1f7a4d;
+  --fair: #97670a;
+  --poor: #b3261e;
+  --accent: #1a4f8a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #eef1f5;
+    --ink-muted: #a8b1bd;
+    --surface: #191d23;
+    --surface-sunken: #222831;
+    --line: #333c47;
+    --good: #5fc48f;
+    --fair: #e0b357;
+    --poor: #f2837c;
+    --accent: #8ab6f0;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  width: 360px;
+  font: 13px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.popup {
+  padding: 14px 14px 10px;
+}
+
+.section-heading {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.score {
+  min-width: 76px;
+  padding: 6px 10px;
+  text-align: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-sunken);
+}
+
+.popup[data-tone='good'] .score {
+  border-color: var(--good);
+}
+.popup[data-tone='fair'] .score {
+  border-color: var(--fair);
+}
+.popup[data-tone='poor'] .score {
+  border-color: var(--poor);
+}
+
+.score-label {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.score-value {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.grade {
+  margin: 0;
+  font-weight: 600;
+}
+
+.popup[data-tone='good'] .grade {
+  color: var(--good);
+}
+.popup[data-tone='fair'] .grade {
+  color: var(--fair);
+}
+.popup[data-tone='poor'] .grade {
+  color: var(--poor);
+}
+
+.headline-block {
+  min-width: 0;
+}
+
+.headline {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.url {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--ink-muted);
+  overflow-wrap: anywhere;
+}
+
+.bar {
+  height: 8px;
+  margin: 12px 0 8px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  transition: width 120ms linear;
+}
+
+.popup[data-tone='good'] .bar-fill {
+  background: var(--good);
+}
+.popup[data-tone='fair'] .bar-fill {
+  background: var(--fair);
+}
+.popup[data-tone='poor'] .bar-fill {
+  background: var(--poor);
+}
+
+.summary {
+  margin: 0 0 10px;
+}
+
+.note {
+  margin: 0 0 10px;
+  padding: 6px 8px;
+  border-left: 3px solid var(--line);
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.note.pending {
+  border-left-color: var(--fair);
+}
+
+.reason-list,
+.finding-list {
+  margin: 0 0 10px;
+  padding-left: 18px;
+}
+
+.reason-list li {
+  margin-bottom: 4px;
+}
+
+.why-button {
+  width: 100%;
+  padding: 7px 10px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.why-button:hover {
+  border-color: var(--accent);
+}
+
+.why-button:focus-visible,
+.module input:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.chevron {
+  float: right;
+  color: var(--ink-muted);
+}
+
+.drilldown {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.finding {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.finding-marker {
+  flex: 0 0 auto;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.finding-title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.finding-category {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--ink-muted);
+}
+
+.finding-detail,
+.finding-effect,
+.finding-fix {
+  margin: 2px 0 0;
+  font-size: 12px;
+}
+
+.finding-effect {
+  color: var(--ink-muted);
+}
+
+.finding-fix {
+  color: var(--accent);
+}
+
+.finding[data-measured='unmeasured'] .finding-title {
+  font-weight: 500;
+  color: var(--ink-muted);
+}
+
+details summary {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+details dl {
+  margin: 4px 0 0;
+  font-size: 11px;
+}
+
+details dt {
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+details dd {
+  margin: 0 0 3px;
+  overflow-wrap: anywhere;
+}
+
+.reputation {
+  margin: 0;
+  padding: 7px 8px;
+  font-size: 12px;
+  color: var(--ink-muted);
+  background: var(--surface-sunken);
+  border-radius: 6px;
+}
+
+.modules {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.module-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+
+.module {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  font-size: 12px;
+}
+
+.module[data-state='planned'] {
+  color: var(--ink-muted);
+}
+
+.footer {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  color: var(--ink-muted);
+}
+
+.footer p {
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar-fill {
+    transition: none;
+  }
+}
+
+/*
+ * Tabs and the Cookies panel (Phase 2). The tab bar is the old module bar expanded into a real
+ * selector; the cookie styles follow the same variables and the same "colour is never the only
+ * signal" rule — every category badge carries its category as text, not just as a tint.
+ */
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-top: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+
+.tab {
+  appearance: none;
+  font: inherit;
+  font-size: 12px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.tab.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.tab:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.panel {
+  margin-top: 8px;
+}
+
+.cookie-summary {
+  padding: 6px 0;
+}
+
+.cookie-total {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cookie-breakdown,
+.cookie-longest {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.cookie-toggle {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  margin: 6px 0;
+  font-size: 12px;
+}
+
+.cookie-bulk {
+  margin: 6px 0;
+}
+
+.danger-button,
+.quiet-button {
+  appearance: none;
+  font: inherit;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  margin-right: 6px;
+}
+
+.danger-button {
+  border-color: var(--poor);
+  color: var(--poor);
+}
+
+.cookie-confirm {
+  margin: 6px 0;
+  padding: 8px;
+  font-size: 12px;
+  background: var(--surface-sunken);
+  border-radius: 6px;
+}
+
+.cookie-confirm p {
+  margin: 0 0 6px;
+  overflow-wrap: anywhere;
+}
+
+.cookie-list {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.cookie-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.cookie-row-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.cookie-row-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  align-items: baseline;
+}
+
+.cookie-name {
+  font-weight: 600;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.cookie-prefix {
+  color: var(--accent);
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+}
+
+.cookie-setter {
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.cookie-badge {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--ink-muted);
+}
+
+.cookie-badge[data-category='advertising'],
+.cookie-badge[data-category='social'] {
+  border-color: var(--poor);
+  color: var(--poor);
+}
+
+.cookie-badge[data-category='analytics'] {
+  border-color: var(--fair);
+  color: var(--fair);
+}
+
+.cookie-badge[data-category='essential'] {
+  border-color: var(--good);
+  color: var(--good);
+}
+
+.cookie-meta {
+  margin: 3px 0 0;
+  font-size: 11px;
+  color: var(--ink-muted);
+}
+
+.cookie-explanation {
+  margin: 3px 0 0;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.cookie-delete {
+  appearance: none;
+  font: inherit;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--poor);
+  background: transparent;
+  color: var(--poor);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cookie-keep {
+  font-size: 10px;
+  color: var(--ink-muted);
+  white-space: nowrap;
+  align-self: center;
+}
+
+/* Changes panel (Phase 3): the history line reads like the drill-down's reputation note. */
+.changes-history {
+  margin: 0 0 6px;
+  padding: 7px 8px;
+  font-size: 12px;
+  color: var(--ink-muted);
+  background: var(--surface-sunken);
+  border-radius: 6px;
+}
+
+/*
+ * Headers panel (Phase 4, D-009) and Extensions panel (Phase 4, D-010). Both reuse the
+ * drill-down's .finding row styles; only the value line and the permission lines are new.
+ */
+.header-value {
+  margin: 2px 0 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10.5px;
+  line-height: 1.45;
+  word-break: break-all;
+  color: var(--ink);
+}
+
+.header-row[data-present='no'] .header-value {
+  color: var(--poor);
+  font-style: italic;
+}
+
+.ext-permission {
+  margin: 3px 0 0;
+}
+
+.ext-permission[data-severity='critical'],
+.ext-permission[data-severity='high'] {
+  color: var(--poor);
+}
+
+.ext-row[data-enabled='no'] .finding-title {
+  text-decoration: line-through;
+  color: var(--ink-muted);
+}
+
+

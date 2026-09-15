@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sentinel fixture: password forms</title>
+  </head>
+  <body>
+    <h1>Password form fixtures</h1>
+
+    <!-- 1. Same-origin HTTPS action, password field opted out of autofill. -->
+    <form id="secure-form" action="/login" method="post">
+      <label for="user">Username</label>
+      <input id="user" type="text" name="user" autocomplete="username" />
+      <label for="pass-secure">Password</label>
+      <input id="pass-secure" type="password" name="pass" autocomplete="off" />
+      <button type="submit">Sign in</button>
+    </form>
+
+    <!-- 2. Same-origin action, but the password field invites the password manager. -->
+    <form id="autocomplete-form" action="/login" method="post">
+      <label for="pass-autocomplete">Password</label>
+      <input id="pass-autocomplete" type="password" name="pass" autocomplete="current-password" />
+      <button type="submit">Sign in</button>
+    </form>
+
+    <!-- 3. Password posted to a different origin. Not submitted by any test. -->
+    <form id="cross-origin-form" action="https://other.test:8788/collect" method="post">
+      <label for="pass-cross">Password</label>
+      <input id="pass-cross" type="password" name="pass" autocomplete="off" />
+      <button type="submit">Sign in</button>
+    </form>
+  </body>
+</html>

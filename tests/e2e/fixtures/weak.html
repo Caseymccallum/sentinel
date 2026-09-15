@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sentinel fixture: weak headers</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <h1>Weak-header fixture page</h1>
+    <p>
+      Served over HTTPS, so the connection signals pass, but every response-hardening header is
+      present and bad: <code>unsafe-inline</code> and <code>unsafe-eval</code> in the CSP,
+      <code>X-Frame-Options: ALLOWALL</code>, <code>Referrer-Policy: unsafe-url</code>,
+      <code>Permissions-Policy: geolocation=*</code> and <code>HSTS: max-age=0</code> (which
+      actively switches HSTS off).
+    </p>
+    <p>
+      The point of this fixture is that "present" is not the same as "good": a page like this must
+      not be scored as if the headers were missing, and must not be scored as if they were fine.
+    </p>
+  </body>
+</html>

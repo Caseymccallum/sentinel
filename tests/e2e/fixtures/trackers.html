@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sentinel fixture: tracker-heavy page</title>
+    <!--
+      Four known third-party hosts, every one of them mapped back to the local fixture server by
+      the `--host-resolver-rules` Chromium argument (see tests/e2e/extension.ts). Nothing leaves
+      the machine: the "tracker" is tracker-shim.js served from 127.0.0.1.
+    -->
+    <script src="https://www.google-analytics.com:8788/analytics.js" defer></script>
+    <script src="https://connect.facebook.net:8788/fbevents.js" defer></script>
+    <script src="https://static.hotjar.com:8788/hotjar.js" defer></script>
+    <script src="https://cdn.segment.com:8788/analytics.js" defer></script>
+  </head>
+  <body>
+    <h1>Tracker-heavy fixture page</h1>
+    <p>
+      The CSP on this page names each tracker host explicitly, so the requests are a deliberate
+      part of the page rather than a blocked-inline-script artefact.
+    </p>
+  </body>
+</html>

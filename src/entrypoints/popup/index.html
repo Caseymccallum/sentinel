@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sentinel — trust report for this page</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <!--
+      The score panel. `data-status` and `data-tone` are set by view.js from the background
+      worker's answer; the markup carries no numbers of its own, so nothing here can disagree
+      with the score.
+    -->
+    <main id="popup" class="popup" data-status="loading" data-tone="unknown" aria-labelledby="headline">
+      <header class="header">
+        <div class="score" aria-labelledby="score-label">
+          <p class="score-label" id="score-label">Trust score</p>
+          <p class="score-value" id="score-value" data-testid="score" aria-describedby="score-bar">—</p>
+          <p class="grade" id="grade" data-testid="grade">–</p>
+        </div>
+        <div class="headline-block">
+          <h1 class="headline" id="headline" data-testid="headline">Nothing to score yet</h1>
+          <p class="url" id="url" data-testid="url"></p>
+        </div>
+      </header>
+
+      <div class="bar" id="score-bar">
+        <div class="bar-fill" id="score-bar-fill" data-testid="score-bar-fill"></div>
+      </div>
+
+      <p class="summary" id="summary" data-testid="summary" aria-live="polite"></p>
+      <p class="note pending" id="pending-note" data-testid="pending-note" hidden></p>
+      <p class="note coverage" id="coverage-note" hidden></p>
+
+      <!--
+        The tab bar doubles as the module bar: active modules are real tabs (Trust Score,
+        Cookies), planned ones render disabled until their analysers exist.
+      -->
+      <nav class="tabs" id="tab-bar" data-testid="tab-bar" role="tablist" aria-label="Sentinel panels"></nav>
+
+      <!-- The Trust Score panel: every finding, worst first, plus the drill-down. -->
+      <section
+        class="panel"
+        id="panel-trust-score"
+        data-testid="panel-trust-score"
+        role="tabpanel"
+        aria-label="Trust score"
+      >
+        <section class="reasons" aria-labelledby="reasons-heading">
+          <h2 class="section-heading" id="reasons-heading">Why this score</h2>
+          <ul class="reason-list" id="reasons" data-testid="reasons"></ul>
+        </section>
+
+        <button
+          class="why-button"
+          id="why-button"
+          data-testid="why-button"
+          type="button"
+          aria-expanded="false"
+          aria-controls="drilldown"
+        >
+          Why this score? <span class="chevron" aria-hidden="true">▾</span>
+        </button>
+
+        <!--
+          The drill-down: every finding, ordered by how many points it actually removed, plus the
+          two things Sentinel cannot measure (reputation) or could not measure on this page.
+        -->
+        <section class="drilldown" id="drilldown" data-testid="drilldown" aria-labelledby="drilldown-heading" hidden>
+          <h2 class="section-heading" id="drilldown-heading">Every check sentinel ran</h2>
+          <ul class="finding-list" id="findings" data-testid="findings"></ul>
+          <p class="reputation" id="reputation" data-testid="reputation"></p>
+        </section>
+      </section>
+
+      <!--
+        The Cookies panel (Phase 2). Everything here is metadata only: Sentinel never reads or
+        shows a cookie's value (D-007), and deletion happens only through these buttons.
+      -->
+      <section
+        class="panel"
+        id="panel-cookies"
+        data-testid="cookie-panel"
+        role="tabpanel"
+        aria-label="Cookies"
+        hidden
+      >
+        <div class="cookie-summary" id="cookie-summary" data-testid="cookie-summary">
+          <p class="cookie-total" id="cookie-summary-total" data-testid="cookie-summary-total"></p>
+          <p class="cookie-breakdown" id="cookie-summary-breakdown" data-testid="cookie-summary-breakdown"></p>
+          <p class="cookie-longest" id="cookie-summary-longest" data-testid="cookie-summary-longest"></p>
+        </div>
+
+        <p class="note" id="cookie-disabled-note" data-testid="cookie-disabled-note" hidden></p>
+
+        <label class="cookie-toggle" for="cookie-module-toggle">
+          <input type="checkbox" id="cookie-module-toggle" data-testid="cookie-module-toggle" />
+          <span>Enable cookie analysis</span>
+        </label>
+
+        <div class="cookie-bulk">
+          <button
+            class="danger-button"
+            id="cookie-bulk-delete"
+            data-testid="cookie-bulk-delete"
+            type="button"
+            hidden
+          ></button>
+        </div>
+        <div class="cookie-confirm" id="cookie-confirm" data-testid="cookie-confirm" hidden></div>
+
+        <ul class="cookie-list" id="cookie-list" data-testid="cookie-list"></ul>
+      </section>
+
+      <!--
+        The Changes panel (Phase 3, D-008): differences between this visit and the domain's last
+        recorded visit. Informational and weightless — these findings never move the Trust Score.
+      -->
+      <section
+        class="panel"
+        id="panel-changes"
+        data-testid="changes-panel"
+        role="tabpanel"
+        aria-label="Changes"
+        hidden
+      >
+        <p class="changes-history" id="changes-summary" data-testid="changes-summary"></p>
+
+        <p class="note" id="changes-disabled-note" data-testid="changes-disabled-note" hidden></p>
+
+        <label class="cookie-toggle" for="changes-module-toggle">
+          <input type="checkbox" id="changes-module-toggle" data-testid="changes-module-toggle" />
+          <span>Enable change monitoring</span>
+        </label>
+
+        <div class="cookie-bulk">
+          <button
+            class="quiet-button"
+            id="changes-forget"
+            data-testid="changes-forget"
+            type="button"
+            hidden
+          ></button>
+        </div>
+
+        <ul class="finding-list" id="changes-list" data-testid="changes-list"></ul>
+      </section>
+
+      <!--
+        The Headers panel (Phase 4, D-009): every response header the site sent, next to the
+        value good practice recommends. Informational and weightless — the scoring of these
+        headers lives in the trust-score module's `headers` category, never here.
+      -->
+      <section
+        class="panel"
+        id="panel-headers"
+        data-testid="headers-panel"
+        role="tabpanel"
+        aria-label="Headers"
+        hidden
+      >
+        <p class="cookie-summary" id="headers-summary" data-testid="headers-summary"></p>
+
+        <p class="note" id="headers-disabled-note" data-testid="headers-disabled-note" hidden></p>
+
+        <label class="cookie-toggle" for="headers-module-toggle">
+          <input type="checkbox" id="headers-module-toggle" data-testid="headers-module-toggle" />
+          <span>Enable header display</span>
+        </label>
+
+        <ul class="finding-list" id="headers-list" data-testid="headers-list"></ul>
+      </section>
+
+      <!--
+        The Extensions panel (Phase 4, D-010): the other installed extensions, reviewed for
+        over-broad permissions. Browser-scoped and weightless — not part of any page scan,
+        fetched lazily when this tab is first opened, and never persisted.
+      -->
+      <section
+        class="panel"
+        id="panel-extensions"
+        data-testid="extensions-panel"
+        role="tabpanel"
+        aria-label="Extensions"
+        hidden
+      >
+        <p class="cookie-summary" id="extensions-summary" data-testid="extensions-summary"></p>
+
+        <p class="note" id="extensions-disabled-note" data-testid="extensions-disabled-note" hidden></p>
+
+        <label class="cookie-toggle" for="extensions-module-toggle">
+          <input type="checkbox" id="extensions-module-toggle" data-testid="extensions-module-toggle" />
+          <span>Enable extension auditor</span>
+        </label>
+
+        <ul class="finding-list" id="extensions-list" data-testid="extensions-list"></ul>
+      </section>
+
+      <footer class="footer">
+        <p>Sentinel analyses pages locally. It has no account, no telemetry and makes no requests.</p>
+        <button
+          class="quiet-button"
+          id="open-options"
+          data-testid="open-options"
+          type="button"
+        >Settings</button>
+      </footer>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

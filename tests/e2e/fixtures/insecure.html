@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sentinel fixture: insecure page</title>
+    <!--
+      The strong-negative fixture, served over plain HTTP with no security headers.
+
+      - It is the only way to make `connection.https` measure zero, which triggers the hard score
+        cap (see docs/SCORING.md 2.2): an unencrypted page cannot score above 20 however well
+        behaved the rest of it looks.
+      - Three known tracker hosts are contacted, so the privacy signals have real work to do.
+      - The password form posts to `http://` on purpose: the credential itself travels in the clear.
+
+      The tracker scripts are empty stubs served from 127.0.0.1 (see scripts/e2e-server.mjs); the
+      signal is the request origin, not the script content.
+    -->
+    <script src="https://www.google-analytics.com:8788/analytics.js" defer></script>
+    <script src="https://connect.facebook.net:8788/fbevents.js" defer></script>
+    <script src="https://cdn.segment.com:8788/analytics.js" defer></script>
+  </head>
+  <body>
+    <h1>Insecure fixture page</h1>
+    <p>Served over HTTP, with no security headers, three trackers and a password form posting over HTTP.</p>
+
+    <form id="insecure-login" action="http://insecure.test:4174/collect" method="post">
+      <label for="user">Username</label>
+      <input id="user" type="text" name="user" autocomplete="username" />
+      <label for="pass">Password</label>
+      <input id="pass" type="password" name="pass" autocomplete="off" />
+      <button type="submit">Sign in</button>
+    </form>
+  </body>
+</html>

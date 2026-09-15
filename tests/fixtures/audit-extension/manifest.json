@@ -1,0 +1,8 @@
+{
+  "manifest_version": 3,
+  "name": "Sentinel Audit Fixture",
+  "version": "1.0.0",
+  "description": "Deliberately over-permissioned fixture for the Extension Auditor's end-to-end test. Does nothing.",
+  "permissions": ["tabs", "history", "cookies", "webRequest", "storage"],
+  "host_permissions": ["<all_urls>"]
+}

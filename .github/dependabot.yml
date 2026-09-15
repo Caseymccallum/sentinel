@@ -1,0 +1,22 @@
+version: 2
+
+# The gates are the product's central claim, so the tools that run them should not rot quietly.
+# Every bump below lands as a pull request that CI answers with `npm run verify` - which is the
+# cheapest possible way to find out whether a dependency still builds this extension.
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    # One grouped pull request rather than five: the interesting question is always whether the
+    # whole suite still passes, not which of wxt, vite or vitest moved.
+    groups:
+      dev-dependencies:
+        patterns: ['*']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3

@@ -1,0 +1,38 @@
+/*
+ * The fixture pages' stylesheet. Served from the same origin as every page, so "same-origin
+ * resource" is something the privacy signals can actually observe. Intentionally trivial: it is
+ * here to be a first-party request, not to look like anything.
+ */
+body {
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  margin: 2rem auto;
+  max-width: 44rem;
+  color: #14181f;
+}
+
+h1 {
+  font-size: 1.4rem;
+}
+
+code {
+  background: #f4f6f9;
+  padding: 0 3px;
+  border-radius: 3px;
+}
+
+form {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 0.5rem;
+  max-width: 22rem;
+}
+
+label {
+  font-weight: 600;
+}
+
+input,
+button {
+  font: inherit;
+  padding: 0.35rem 0.5rem;
+}

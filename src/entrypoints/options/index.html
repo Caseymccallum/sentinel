@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sentinel — settings</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <!--
+      The options page (Phase 5, D-011): the full view of the same settings the popup's panel
+      toggles edit. Like the popup, it renders from markup first and fills in from the settings
+      store; it never analyses anything and never touches the network.
+    -->
+    <main id="options" class="options">
+      <header class="options-header">
+        <h1>Sentinel settings</h1>
+        <p class="tagline">
+          Sentinel scores the page you are on and explains every point it deducts. Everything is
+          analysed locally — no account, no telemetry, no network requests.
+        </p>
+      </header>
+
+      <section class="options-section" aria-labelledby="modules-heading">
+        <h2 id="modules-heading">Modules</h2>
+        <p class="section-note">
+          Each module can be switched off on its own. A switched-off module is a gap in the
+          report, never a bonus: its checks report &ldquo;could not be checked&rdquo; and its
+          weight is redistributed across the modules that did measure.
+        </p>
+        <ul class="module-list" id="module-list" data-testid="module-list"></ul>
+      </section>
+
+      <section class="options-section" aria-labelledby="data-heading">
+        <h2 id="data-heading">Your data</h2>
+        <p class="section-note">
+          The Change Monitor keeps per-site security history — scores, host names and change
+          digests, never page paths, queries or titles — in this browser only, capped at 500
+          sites. Forgetting is a user action, like deleting cookies.
+        </p>
+
+        <p class="cookie-summary" id="site-summary" data-testid="site-summary"></p>
+        <ul class="site-list" id="site-list" data-testid="site-list"></ul>
+
+        <p class="note" id="forget-all-note" data-testid="forget-all-note" hidden></p>
+        <div class="forget-row">
+          <button
+            class="danger-button"
+            id="forget-all"
+            data-testid="forget-all"
+            type="button"
+          >Forget all site history</button>
+          <button
+            class="danger-button"
+            id="forget-all-confirm"
+            data-testid="forget-all-confirm"
+            type="button"
+            hidden
+          >Yes, forget everything</button>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <p>
+          Scores live in session storage and disappear when the browser closes. Module settings
+          and site history live in this browser's local storage and never leave it.
+        </p>
+      </footer>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

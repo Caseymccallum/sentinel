@@ -1,0 +1,46 @@
+{
+  "name": "sentinel",
+  "displayName": "Sentinel",
+  "description": "Local-first trust and privacy analysis for websites. No accounts, no telemetry, no network calls.",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "author": "Casey McCallum",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/caseymccallum/sentinel.git"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "build:all": "npm run build && npm run build:firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "tsc --noEmit",
+    "icons": "node scripts/generate-icons.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "npm run build && playwright test",
+    "test:e2e:headed": "npm run build && playwright test --headed",
+    "icons:check": "node scripts/generate-icons.mjs --check",
+    "check:local-only": "node scripts/check-local-only.mjs",
+    "check:size": "node scripts/check-size.mjs",
+    "verify": "npm run icons:check && npm run compile && npm run test && npm run build && npm run check:local-only && npm run check:size",
+    "postinstall": "wxt prepare"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "jsdom": "^30.0.1",
+    "playwright": "^1.63.0",
+    "typescript": "^5.9.3",
+    "vite": "^8.1.5",
+    "vitest": "^5.0.0",
+    "wxt": "^0.21.3"
+  }
+}

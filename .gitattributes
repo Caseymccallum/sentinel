@@ -1,0 +1,9 @@
+# Line endings are normalised in the repository, not on each machine: contributors and CI run
+# on different platforms, and the gates (`check-local-only`, `check:size`) read file text.
+* text=auto eol=lf
+
+# Never converted, never diffed as text. The icons are auditable geometry
+# (`scripts/generate-icons.mjs`), not opaque binaries, but a PNG is still not text; the fixture
+# certificate and key are read byte-for-byte by the e2e HTTPS server.
+*.png binary
+*.pem binary

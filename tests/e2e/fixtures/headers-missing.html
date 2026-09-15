@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sentinel fixture: no security headers</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <h1>No-header fixture page</h1>
+    <p>
+      Served over HTTPS with <strong>no</strong> security headers at all. Every header signal should
+      measure zero here, which is the strongest statement Sentinel makes from response headers -
+      and the reason a missing header is only scored when the headers were actually captured.
+    </p>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+name: verify
+
+# Sentinel's claims are worth something only if a machine checks them on every change rather
+# than when someone remembers to. This workflow runs the same gate sequence `docs/RELEASE.md`
+# §2 describes, on the same commands, so "the build is green" means one thing in both places.
+#
+# Two order-sensitivities are deliberate:
+#   - `check:local-only` and `check:size` judge whatever is in `.output/`, so Firefox is only
+#     vouched for once `build:all` has produced it and the gates have run *again* (RELEASE.md
+#     §3.2). Without the second `verify`, the gates would vouch for a stale Firefox build.
+#   - `verify` builds Chrome only, which is why the sequence is verify -> build:all -> verify.
+#
+# The stability pass (`npm run test:e2e -- --repeat-each=2`, RELEASE.md §2.3) stays manual: it
+# exists to catch flakes, and tripling e2e time on every pull request buys less than running it
+# before a release.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Least privilege, the same posture the extension takes with its own permissions.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gates:
+    name: gates (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        # 22 is the floor `package.json` engines declares; 24 is where the project is developed.
+        # Anything the matrix does not list is not vouched for.
+        node: ['22', '24']
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - name: verify (icons, typecheck, unit tests, Chrome build, local-only, size)
+        run: npm run verify
+      - name: build both targets
+        run: npm run build:all
+      - name: verify again (the gates scan every built target)
+        run: npm run verify
+
+  e2e:
+    name: money test (chromium)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      # `channel: 'chromium'` in tests/e2e/extension.ts needs the full Chromium build: only it
+      # can load an extension, and `chrome-headless-shell` is what `headless: true` would get.
+      - run: npx playwright install --with-deps chromium
+      - name: money test (builds the extension, serves local fixtures, drives the popup)
+        run: npm run test:e2e
+      - name: keep the trace when it fails
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-artifacts
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore

@@ -1,0 +1,189 @@
+/*
+ * The options page's stylesheet (Phase 5, D-011).
+ *
+ * Same self-contained discipline as the popup's: no web fonts, no remote images, no CSS from
+ * anywhere but this file. The colour tokens match the popup's so the two surfaces read as one
+ * product; colour is never the only signal (state is always also text).
+ */
+
+:root {
+  color-scheme: light dark;
+  --ink: #14181f;
+  --ink-muted: #5a6472;
+  --surface: #ffffff;
+  --surface-sunken: #f4f6f9;
+  --line: #dfe4ea;
+  --poor: #b3261e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #eef1f5;
+    --ink-muted: #a8b1bd;
+    --surface: #191d23;
+    --surface-sunken: #222831;
+    --line: #333c47;
+    --poor: #f2837c;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  max-width: 640px;
+  padding: 20px 24px 32px;
+  font: 13px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.options-header h1 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.tagline {
+  margin: 0;
+  color: var(--ink-muted);
+}
+
+.options-section {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.options-section h2 {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.section-note {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+/* The recorded-site list (Phase 6, D-013): one metadata-only row per site. */
+.site-list {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.site-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+.site-row .module-title {
+  font-size: 12.5px;
+}
+
+.site-row .module-description {
+  font-size: 11px;
+}
+
+.quiet-button {
+  appearance: none;
+  font: inherit;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.quiet-button:hover {
+  background: var(--surface-sunken);
+}
+
+.module-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.module-row {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.module-toggle {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.module-toggle input {
+  margin-top: 2px;
+  accent-color: var(--ink);
+}
+
+.module-title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.module-description {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.note {
+  margin: 0 0 8px;
+  padding: 7px 8px;
+  font-size: 12px;
+  color: var(--ink-muted);
+  background: var(--surface-sunken);
+  border-radius: 6px;
+}
+
+.forget-row {
+  display: flex;
+  gap: 8px;
+}
+
+.danger-button {
+  appearance: none;
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--poor);
+  background: transparent;
+  color: var(--poor);
+  cursor: pointer;
+}
+
+.danger-button:hover {
+  background: var(--surface-sunken);
+}
+
+.footer {
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.footer p {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--ink-muted);
+}
