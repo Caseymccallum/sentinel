@@ -1,0 +1,62 @@
+name: Weight proposal
+description: Propose a change to the scoring model's weights, impact budgets, thresholds or caps.
+title: 'Weight: '
+labels: ['scoring']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Scoring is data plus arithmetic (`src/core/scoring-model.ts`), and its invariants are asserted
+        by tests: weights sum to exactly 1, every category has exactly 100 points of budget, and every
+        cap names a reason a user can read. A proposal that breaks one cannot merge, so this form asks
+        for the arithmetic up front.
+
+        Read `docs/SCORING.md` first, and `docs/ARCHITECTURE.md` §3. Weights have been argued about
+        before — `SCORING.md` §2.1 explains why trackers carry 25%, §2.2 why connection is 20% yet
+        still fatal.
+  - type: input
+    id: target
+    attributes:
+      label: Which signal, category or cap?
+      description: Name the signal ids and category, or the cap in SCORE_CAPS.
+      placeholder: 'e.g. cookies.tracking-cookies, in Cookie transparency (20%)'
+    validations:
+      required: true
+  - type: input
+    id: change
+    attributes:
+      label: The proposed change
+      description: The numbers exactly as they would appear in the model, plus the arithmetic that keeps the category at 100 points.
+      placeholder: 'e.g. tracking-cookies maxImpact 45 -> 40, third-party-cookies 30 -> 35'
+    validations:
+      required: true
+  - type: textarea
+    id: justification
+    attributes:
+      label: Why this number, and not the current one?
+      description: An argument, not an assertion. "It feels more important" is not a justification; "a page can set a 400-day identifier that survives every other mitigation, so 45 understates it" is.
+    validations:
+      required: true
+  - type: textarea
+    id: effect
+    attributes:
+      label: What it does to a page we can all look at
+      description: Give the score before and after on a fixture under `tests/e2e/fixtures/`, or on a real page you describe precisely enough to reproduce.
+    validations:
+      required: true
+  - type: textarea
+    id: rejected
+    attributes:
+      label: What did you consider and reject?
+      description: Every decision in ARCHITECTURE.md records the alternatives it passed over, and a weight change is a decision. If you considered no alternative, say so.
+    validations:
+      required: true
+  - type: checkboxes
+    id: invariants
+    attributes:
+      label: Model invariants
+      options:
+        - label: This keeps the category's `maxImpact` values summing to exactly 100.
+          required: true
+        - label: I have read `docs/SCORING.md` §2 and the decision record (D-001 … D-013).
+          required: true

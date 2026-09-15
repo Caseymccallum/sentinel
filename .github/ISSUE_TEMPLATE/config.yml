@@ -1,0 +1,10 @@
+# Blank issues stay enabled: the templates above cover the common cases, and a report that fits none
+# of them should not be blocked by a form.
+blank_issues_enabled: true
+contact_links:
+  - name: What Sentinel does not protect against
+    url: https://github.com/caseymccallum/sentinel/blob/main/docs/THREAT-MODEL.md
+    about: Read this before reporting that Sentinel missed something — much of it is out of scope by design.
+  - name: How the score is calculated
+    url: https://github.com/caseymccallum/sentinel/blob/main/docs/SCORING.md
+    about: Every weight, budget and cap, with the argument for each.

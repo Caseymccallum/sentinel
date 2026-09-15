@@ -1,0 +1,50 @@
+name: Bug report
+description: Something Sentinel said that was wrong, or something it failed to say.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Sentinel's most damaging bug class is a **finding that is wrong and still believable**.
+        `docs/DEVELOPMENT.md` §8 records one: a missing `responseHeaders` extraInfoSpec meant every
+        header check reported "not measured" for four phases, and the redistributed weights kept the
+        scores plausible. Detail is what makes these findable.
+  - type: input
+    id: version
+    attributes:
+      label: Sentinel version
+      description: From the options page, or from the built `manifest.json`.
+    validations:
+      required: true
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      options:
+        - Chrome
+        - Edge
+        - Chromium
+        - Firefox
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: Which page were you on?
+      description: A URL if you are willing to share one, otherwise a description precise enough to find an equivalent ("a Cloudflare-hosted blog over HTTPS").
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: What did Sentinel say?
+      description: The score, the grade and the finding text — or the panel that was empty when it should not have been.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should it have said, and how do you know?
+      description: If you can see the truth of the page elsewhere — headers in DevTools, cookies in the browser's own list — say so. That turns a report into a test case.
+    validations:
+      required: true

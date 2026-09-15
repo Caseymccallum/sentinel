@@ -1,0 +1,55 @@
+name: Knowledge-base entry
+description: Add or correct an entry in a local list — a tracker host, a cookie pattern, or an extension permission grade.
+title: 'Knowledge base: '
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Three local lists decide what a user is told, and they are the easiest place to contribute:
+
+        - `src/shared/trackers.ts` — known tracker hosts and what they do
+        - `src/shared/cookies.ts` — cookie name patterns, purpose and lifetime
+        - `src/modules/extension-auditor/permissions.ts` — how severe an extension permission is
+
+        Each entry is a claim a user will read as fact, so the bar is evidence rather than opinion.
+  - type: dropdown
+    id: list
+    attributes:
+      label: Which list?
+      options:
+        - src/shared/trackers.ts
+        - src/shared/cookies.ts
+        - src/modules/extension-auditor/permissions.ts
+    validations:
+      required: true
+  - type: input
+    id: entry
+    attributes:
+      label: The entry
+      description: The host, cookie name pattern or permission, and the value you propose.
+      placeholder: 'e.g. analytics.example.com — analytics'
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence a reviewer can check
+      description: Vendor documentation, the cookie's own documentation, or the browser's permission reference. Not a blog post that repeats the claim.
+    validations:
+      required: true
+  - type: textarea
+    id: user-visible
+    attributes:
+      label: What will the user read?
+      description: The sentence the popup shows for this entry. It must stand alone — no jargon, no bare counts, no "see above" — because ExplanationBuilder puts it in front of a person.
+    validations:
+      required: true
+  - type: checkboxes
+    id: ground-rules
+    attributes:
+      label: Ground rules
+      options:
+        - label: This adds no network call. The lists are local, and the report stays local-first.
+          required: true
+        - label: I have checked that the entry is not already covered by a broader pattern in that file.
+          required: true

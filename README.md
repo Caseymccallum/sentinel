@@ -126,6 +126,9 @@ npm run test:e2e       # the money test: builds, serves local fixtures, drives t
 npm run screenshots    # regenerate the images in this README (Node 23+)
 ```
 
+Contributions are welcome: [`CONTRIBUTING.md`](CONTRIBUTING.md) covers what earns its place here, and
+the issue templates ask for the argument — and the arithmetic — up front.
+
 ## Status
 
 Pre-release, and honest about it:
