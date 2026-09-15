@@ -538,3 +538,44 @@ test('the options page toggles modules and forgets all site history', async () =
 
   await options.close();
 });
+
+// ---------------------------------------------------------------------------
+// The popup surface a real user gets (release 0.2.0)
+// ---------------------------------------------------------------------------
+
+test('the popup opened the way the toolbar opens it describes the tab the user is looking at', async () => {
+  // Every other test in this file opens `popup.html?tabId=N`, which is not how anyone uses the
+  // extension: a real toolbar click passes no tab id at all, and the background resolves "whatever
+  // tab the user is looking at" itself (`resolveTargetTabId` in src/entrypoints/background.ts).
+  // Nothing else covers that branch - and a bug in it would leave every other test green while
+  // breaking the product completely.
+  //
+  // A popup has to be a page to be driveable, and opening it makes it the active tab. So the
+  // fixture page is brought back to the front first, which is the state a real popup is in when it
+  // asks: open, but not the tab anyone is looking at.
+  await visit(INSECURE_PAGE_URL);
+  const page = session.pages().find((candidate) => candidate.url().startsWith('http://insecure.test')) as Page;
+
+  const popup = await session.context.newPage();
+  await popup.goto(`chrome-extension://${session.extensionId}/popup.html`);
+
+  // Reloading after `bringToFront` is what makes the popup ask again while the page is the active
+  // tab. Bounded rather than unbounded, because which tab the browser considers active on this path
+  // is the browser's business and not something to assume.
+  let tabUrl = '';
+  for (let attempt = 0; attempt < 3 && !tabUrl.includes('insecure.test'); attempt += 1) {
+    await page.bringToFront();
+    await popup.reload();
+    await popup.waitForTimeout(500);
+    tabUrl = (await popup.textContent('#url'))?.trim() ?? '';
+  }
+  expect(tabUrl, 'the popup never described the active tab').toContain('insecure.test');
+
+  await waitForSettled(popup);
+  const snapshot = await readPopup(popup);
+  expect(snapshot.status).toBe('ready');
+  expect(snapshot.score as number).toBeLessThanOrEqual(40);
+  expect(snapshot.grade).toBe('F');
+
+  await popup.close();
+});
