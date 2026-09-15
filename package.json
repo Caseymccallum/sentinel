@@ -28,6 +28,7 @@
     "test:watch": "vitest",
     "test:e2e": "npm run build && playwright test",
     "test:e2e:headed": "npm run build && playwright test --headed",
+    "screenshots": "npm run build && node scripts/capture-popup.mjs",
     "icons:check": "node scripts/generate-icons.mjs --check",
     "check:local-only": "node scripts/check-local-only.mjs",
     "check:size": "node scripts/check-size.mjs",

@@ -32,6 +32,15 @@ export interface ExtensionSession {
   close(): Promise<void>;
 }
 
+/**
+ * Options `scripts/capture-popup.mjs` needs and the tests do not. Kept separate from
+ * `extraExtensionDirs` so adding a capture-only knob can never change what a test launches.
+ */
+export interface LaunchOptions {
+  /** Device pixel ratio. 2 keeps `docs/popup-*.png` sharp on a retina display; the tests want 1. */
+  deviceScaleFactor?: number;
+}
+
 /** A snapshot of everything the popup is displaying. */
 export interface PopupSnapshot {
   status: string | null;
@@ -109,8 +118,15 @@ async function findSentinelWorker(context: BrowserContext): Promise<ServiceWorke
  * Auditor's test, which needs a deliberately over-permissioned second extension to audit).
  * The fixture extensions declare no service worker, so Sentinel's remains the only one and
  * the extension-id detection below stays unambiguous.
+ *
+ * `options` exists for the one caller that is not a test: `scripts/capture-popup.mjs` renders the
+ * README's screenshots. Tests pass nothing and run at the defaults, so nothing they assert can be
+ * affected by it.
  */
-export async function launchExtension(extraExtensionDirs: string[] = []): Promise<ExtensionSession> {
+export async function launchExtension(
+  extraExtensionDirs: string[] = [],
+  options: LaunchOptions = {},
+): Promise<ExtensionSession> {
   await assertBuilt();
   const userDataDir = await mkdtemp(join(tmpdir(), 'sentinel-e2e-'));
 
@@ -119,6 +135,8 @@ export async function launchExtension(extraExtensionDirs: string[] = []): Promis
     // `channel: 'chromium'` is required: the default headless build has no extension support.
     channel: 'chromium',
     headless: true,
+    // 1 for the tests (Playwright's default anyway), 2 for the screenshot script.
+    deviceScaleFactor: options.deviceScaleFactor ?? 1,
     args: [
       `--disable-extensions-except=${loadTargets}`,
       `--load-extension=${loadTargets}`,
