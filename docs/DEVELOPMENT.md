@@ -225,6 +225,13 @@ in headless Chromium. Everything below has bitten once.
   test's `beforeAll` exists because the first main-frame response can beat the service
   worker's listener registration; any new e2e test that asserts on observed traffic must run
   after that warm-up (or perform its own).
+- **A gate that passes because nothing ran is worse than no gate.** The zero-outbound-request check
+  (`tests/e2e/no-outbound-requests.spec.ts`) asserts that the drive *happened* — more than twenty
+  requests seen, an extension page and a fixture page among them — before it asserts that nothing
+  left the allow-list. The allow-list is derived from `scripts/e2e-server.mjs`, and it was built by
+  measuring a real run (eleven request signatures, no remote host among them) rather than guessing.
+  It is fail-closed on purpose: a request made from the content script is attributed to the *page's*
+  frame, so "requests made by Sentinel" is not a distinction the browser offers.
 
 ## 9. Tooling quirks worth knowing
 

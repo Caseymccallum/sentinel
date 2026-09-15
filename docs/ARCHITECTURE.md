@@ -571,9 +571,11 @@ check and the Gecko smoke test) and the store listing copy.
 Still open:
 
 3. Manual release-checklist step: run the extension with DevTools open and confirm zero outbound
-   requests originate from Sentinel itself. The automated gates (`check:local-only`) inspect the source
-   and the built bundle, but only a human with the Network tab open can confirm the running product.
-   The full step-by-step lives in `docs/RELEASE.md` §4.
+   requests originate from Sentinel itself. Most of this is now mechanical —
+   `tests/e2e/no-outbound-requests.spec.ts` (added for the 0.2.0 release) drives the built extension
+   in Chromium and fails on any request outside the fixtures, an extension scheme or `chrome://` —
+   but the gate only covers the paths it drives, so the human pass over *real* sites stays. The
+   full step-by-step lives in `docs/RELEASE.md` §4.
 4. TLS and certificate facts are `null` in Chrome (its `webRequest` does not expose them), so
    `connection.tls-strength` and `connection.certificate` report `measured: null` there. Filling them
    in needs a different source - the certificate transparency log is a network call, so it cannot be

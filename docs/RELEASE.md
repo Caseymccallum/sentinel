@@ -45,17 +45,21 @@ human must look at. If a step cannot be completed, the release does not ship.
 4. `npm run zip` and `npm run zip:firefox` produce the store packages; check both contain
    the built files and no stray artifacts (`node_modules`, `.map` sources, tests).
 
-## 4. Manual Chrome checks (no substitute exists)
+## 4. Manual Chrome checks (what a gate still cannot do)
 
 Load the unpacked extension from `.output/chrome-mv3/` into a clean profile, then:
 
-1. **The zero-outbound-requests check.** Open DevTools on the extension's service worker, the
-   popup and one ordinary page each, with the Network tab open and "preserve log" on. Browse
-   a handful of real sites (including one HTTPS page with third-party scripts). Confirm that
-   **no request originates from Sentinel itself** — not from the worker, not from the popup,
-   not from the options page, not from an icon fetch. This is the only check that can
-   validate the running product (ARCHITECTURE.md §6, open item 3); the automated gate
-   `check:local-only` inspects source and bundles, not behaviour.
+1. **The zero-outbound-requests check, on real sites.** `npm run test:e2e` now asserts the core of
+   this mechanically: `tests/e2e/no-outbound-requests.spec.ts` drives three fixture pages through all
+   five popup tabs and the options page, and fails if any request in the whole browser context goes
+   anywhere other than the fixtures, an extension scheme or `chrome://`. Do the manual pass anyway,
+   because the gate only sees the paths the harness drives. Open DevTools on the extension's service
+   worker, the popup and one ordinary page each, with the Network tab open and "preserve log" on, and
+   browse a handful of real sites the fixtures do not stand for (including one HTTPS page with
+   third-party scripts). Confirm that **no request originates from Sentinel itself** — not from the
+   worker, not from the popup, not from the options page, not from an icon fetch. The gate is the
+   regression test; this is the check that covers the untested paths (ARCHITECTURE.md §6, open
+   item 3).
 2. **Exercise all five popup tabs** on a good page and a bad one: score + drill-down, Headers
    (values beside recommendations), Cookies (counts, per-cookie delete), Changes (history
    line after a reload), Extensions (the audit list, and that Sentinel itself is absent).
