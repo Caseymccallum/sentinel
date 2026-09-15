@@ -69,8 +69,14 @@ penalised for a check the browser refused to expose.
 | `npm run check:local-only` | Scans `src/` and every built file for network primitives, and checks the built manifest's permissions against an allow-list |
 | `npm run check:size` | Measures the built extension against the 400 kB total / 200 kB per-file budget |
 | `npm run icons:check` | Confirms the committed icons match what the generator produces |
+| `npm run screenshots` | Rebuilds and regenerates the README's popup images (`scripts/capture-popup.mjs`), driving the *built* extension against the fixtures |
 
 `npm run verify` is the gate. If it is red, the extension does not ship.
+
+The README's screenshots are reproducible rather than decorative: `npm run screenshots` drives the
+built extension through the same harness the money test uses, so an image can be re-derived instead
+of trusted. It imports the TypeScript harness directly and therefore needs Node 23 or newer, which is
+why it is not part of `verify`; `package.json`'s `engines` floor of 22 covers everything else.
 
 A failing `check:local-only` is never silenced by adding an allow marker to a built file: that marker
 exists for prose and tests that *mention* a primitive. The one real finding so far was Vite's
