@@ -69,10 +69,11 @@ drives the real popup in headless Chromium and asserts what it displays.
 
 ## Install
 
-Not in any store yet. Sentinel is at 0.1.0 and has not been through a release: [`docs/RELEASE.md`](docs/RELEASE.md)
-is the checklist that has to be completed first, and it includes two manual checks — a
-zero-outbound-request check in DevTools and a Firefox smoke test — that no automated gate can
-perform.
+Not in any store yet. Sentinel is at 0.2.0: both packages build (`npm run zip`, `npm run zip:firefox`),
+every gate is green, and the two manual checks in [`docs/RELEASE.md`](docs/RELEASE.md) §4 and §5 — a
+zero-outbound-request pass in DevTools over real sites, and a Firefox smoke test — are what stand
+between this and a store listing. A release whose manual steps are undocumented is not a completed
+release, so the checklist is the gate.
 
 ```bash
 npm ci
